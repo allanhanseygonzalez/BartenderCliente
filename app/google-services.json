@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "764648479358",
+    "project_id": "bartendercliente",
+    "storage_bucket": "bartendercliente.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:764648479358:android:15894b2c207558542d962f",
+        "android_client_info": {
+          "package_name": "com.una.bartendercliente"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "764648479358-oglib9cq5242jgfs8dahqrdtijkh70p6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.una.bartendercliente",
+            "certificate_hash": "50c68d741ffd1788378c1f1561ee618ce7ec0158"
+          }
+        },
+        {
+          "client_id": "764648479358-dlngu1lgbfbkdbtqp60bst16ktent7el.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAOyO58_dRXvU2pZL5UY0QOYnYbhMI6pq8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "764648479358-dlngu1lgbfbkdbtqp60bst16ktent7el.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
