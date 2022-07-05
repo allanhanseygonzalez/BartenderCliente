@@ -34,6 +34,10 @@ public class MesaAdapter extends RecyclerView.Adapter<MesaViewHolder>{
     public int getItemCount() {
         return items.size();
     }
+
+    public void setItems(List<Mesa> items){
+        this.items = items;
+    }
 }
 
 class MesaViewHolder extends RecyclerView.ViewHolder {

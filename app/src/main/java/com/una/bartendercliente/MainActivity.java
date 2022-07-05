@@ -1,6 +1,7 @@
 package com.una.bartendercliente;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -20,6 +21,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private FirebaseAnalytics mFirebaseAnalytics;
@@ -56,10 +61,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Mesas.child("Mesa").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                listaMesas = new ArrayList<>();
+                if(listaMesas.size() == 0) {
+                    mesaAdapter.setItems(listaMesas);
+                    mesaAdapter.notifyDataSetChanged();
+                    for (int i = 0; i < 8; i++) {
+                        Button boton = (Button) findViewById(btnMesa[i]);
+                        boton.setEnabled(true);
+                    }
+                }
                 for (DataSnapshot userDataSnapshot : snapshot.getChildren()) {
                     Mesa mesa = userDataSnapshot.getValue(Mesa.class);
-                    Boolean state = mesa.getEstado();
                     Boolean v = true;
+                    for (int i = 0; i < 8; i++) {
+                        Button boton = (Button) findViewById(btnMesa[i]);
+                        boton.setEnabled(true);
+                    }
                     for(Mesa m: listaMesas){
                         if(m.getNumero() == mesa.getNumero()){
                             v = false;
@@ -68,24 +85,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     if(v) {
                         listaMesas.add(mesa);
                     }
-                    mesaAdapter.notifyDataSetChanged();
-                    if (state) {
-                        mesa.getNumero();
-                        Button boton = (Button)findViewById(btnMesa[mesa.getNumero()-1]);
-                        boton.setEnabled(true);
-                    }else{
-                        mesa.getNumero();
-                        Button boton = (Button)findViewById(btnMesa[mesa.getNumero()-1]);
-                        boton.setEnabled(false);
+                    for(Mesa m : listaMesas){
+                        System.out.println(m.getNumero());
+                        Button boton = (Button) findViewById(btnMesa[m.getNumero() - 1]);
+                        boton.setEnabled(mesa.getEstado());
                     }
+                    System.out.println("------------");
+                    mesaAdapter.setItems(listaMesas);
+                    mesaAdapter.notifyDataSetChanged();
                 }
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 
             }
         });
+
 
         ItemTouchHelper.SimpleCallback itemTouchHelperCallback =
                 new ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.RIGHT) {
@@ -96,12 +111,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     @Override
                     public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
+                        String key = listaMesas.get(0).getKey();
                         Mesas = FirebaseDatabase.getInstance().getReference("Mesas");
-                        System.out.println(viewHolder.getAdapterPosition());
-                        //Mesas.child("Mesa").child(mesaAdapter.items.get(0).getNumero().toString()).removeValue();
-                        mesaAdapter.items.remove(0);
+                        listaMesas.remove(0);
+                        Mesas.child("Mesa").child(key).removeValue();
                         mesaAdapter.notifyDataSetChanged();
-
                     }
 
                     @Override
@@ -113,7 +127,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
 
                         if (viewHolder.getAdapterPosition() > 0) {
-                            // disable swipe feature for position 3
                             return makeMovementFlags(0, 0);
                         }
 
@@ -128,85 +141,44 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        Mesas = FirebaseDatabase.getInstance().getReference("Mesas");
-        Integer numero;
-        Button boton;
-        Mesa mesa;
         switch (v.getId()) {
             case R.id.mesa1:
-                boton = (Button)findViewById(R.id.mesa1);
-                numero = Integer.parseInt(boton.getText().toString());
-                mesa = new Mesa(numero, false);
-                boton.setEnabled(false);
-                Mesas.child("Mesa").child(numero.toString()).setValue(mesa);
-                Toast.makeText(this, "¡Has reservado la mesa "+numero+" !",
-                        Toast.LENGTH_LONG).show();
+                agregarMesa(1);
                 break;
             case R.id.mesa2:
-                boton = (Button)findViewById(R.id.mesa2);
-                    numero = Integer.parseInt(boton.getText().toString());
-                    mesa = new Mesa(numero, false);
-                    boton.setEnabled(false);
-                    Mesas.child("Mesa").child(numero.toString()).setValue(mesa);
-                    Toast.makeText(this, "¡Has reservado la mesa "+numero+" !",
-                            Toast.LENGTH_LONG).show();
+                agregarMesa(2);
                 break;
             case R.id.mesa3:
-                boton = (Button)findViewById(R.id.mesa3);
-                numero = Integer.parseInt(boton.getText().toString());
-                mesa = new Mesa(numero, false);
-                boton.setEnabled(false);
-                Mesas.child("Mesa").child(numero.toString()).setValue(mesa);
-                Toast.makeText(this, "¡Has reservado la mesa "+numero+" !",
-                        Toast.LENGTH_LONG).show();
+                agregarMesa(3);
                 break;
             case R.id.mesa4:
-                boton = (Button)findViewById(R.id.mesa4);
-                numero = Integer.parseInt(boton.getText().toString());
-                mesa = new Mesa(numero, false);
-                boton.setEnabled(false);
-                Mesas.child("Mesa").child(numero.toString()).setValue(mesa);
-                Toast.makeText(this, "¡Has reservado la mesa "+numero+" !",
-                        Toast.LENGTH_LONG).show();
+                agregarMesa(4);
                 break;
             case R.id.mesa5:
-                boton = (Button)findViewById(R.id.mesa5);
-                numero = Integer.parseInt(boton.getText().toString());
-                mesa = new Mesa(numero, false);
-                boton.setEnabled(false);
-                Mesas.child("Mesa").child(numero.toString()).setValue(mesa);
-                Toast.makeText(this, "¡Has reservado la mesa "+numero+" !",
-                        Toast.LENGTH_LONG).show();
+                agregarMesa(5);
                 break;
             case R.id.mesa6:
-                boton = (Button)findViewById(R.id.mesa6);
-                numero = Integer.parseInt(boton.getText().toString());
-                mesa = new Mesa(numero, false);
-                boton.setEnabled(false);
-                Mesas.child("Mesa").child(numero.toString()).setValue(mesa);
-                Toast.makeText(this, "¡Has reservado la mesa "+numero+" !",
-                        Toast.LENGTH_LONG).show();
+                agregarMesa(6);
                 break;
             case R.id.mesa7:
-                boton = (Button)findViewById(R.id.mesa7);
-                numero = Integer.parseInt(boton.getText().toString());
-                mesa = new Mesa(numero, false);
-                boton.setEnabled(false);
-                Mesas.child("Mesa").child(numero.toString()).setValue(mesa);
-                Toast.makeText(this, "¡Has reservado la mesa "+numero+" !",
-                        Toast.LENGTH_LONG).show();
+                agregarMesa(7);
                 break;
             case R.id.mesa8:
-                boton = (Button)findViewById(R.id.mesa8);
-                numero = Integer.parseInt(boton.getText().toString());
-                mesa = new Mesa(numero, false);
-                boton.setEnabled(false);
-                Mesas.child("Mesa").child(numero.toString()).setValue(mesa);
-                Toast.makeText(this, "¡Has reservado la mesa "+numero+" !",
-                        Toast.LENGTH_LONG).show();
+                agregarMesa(8);
                 break;
         }
+
     }
 
+    public void agregarMesa(Integer n){
+        Mesas = FirebaseDatabase.getInstance().getReference("Mesas");
+        String key;
+        Mesa mesa;
+        key = Mesas.push().getKey();
+        mesa = new Mesa(key,n, false);
+        Mesas.child("Mesa").child(key).setValue(mesa);
+        Toast.makeText(this, "¡Has reservado la mesa "+n+" !",
+                Toast.LENGTH_LONG).show();
+    }
 
 }
