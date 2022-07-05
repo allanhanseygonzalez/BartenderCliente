@@ -1,6 +1,10 @@
 package com.una.bartendercliente;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,14 +19,22 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private FirebaseAnalytics mFirebaseAnalytics;
     private DatabaseReference Mesas;
-
+    private ArrayList<Mesa> listaMesas;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        int[] btnMesa = new int[]{R.id.mesa1,R.id.mesa2,R.id.mesa3,R.id.mesa4,R.id.mesa5,R.id.mesa6,R.id.mesa7,R.id.mesa8};
+        listaMesas = new ArrayList<>();
+        RecyclerView recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        MesaAdapter mesaAdapter = new MesaAdapter(listaMesas);
+        recyclerView.setAdapter(mesaAdapter);
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
         Button mesa1 = findViewById(R.id.mesa1);
         Button mesa2 = findViewById(R.id.mesa2);
@@ -41,14 +53,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mesa7.setOnClickListener(this);
         mesa8.setOnClickListener(this);
         Mesas = FirebaseDatabase.getInstance().getReference("Mesas");
-        Mesas.child("Mesa").addListenerForSingleValueEvent(new ValueEventListener() {
+        Mesas.child("Mesa").addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot userDataSnapshot : dataSnapshot.getChildren()) {
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot userDataSnapshot : snapshot.getChildren()) {
                     Mesa mesa = userDataSnapshot.getValue(Mesa.class);
                     Boolean state = mesa.getEstado();
-                    System.out.println(mesa.getEstado());
-                    int[] btnMesa = new int[]{R.id.mesa1,R.id.mesa2,R.id.mesa3,R.id.mesa4,R.id.mesa5,R.id.mesa6,R.id.mesa7,R.id.mesa8};
+                    Boolean v = true;
+                    for(Mesa m: listaMesas){
+                        if(m.getNumero() == mesa.getNumero()){
+                            v = false;
+                        }
+                    }
+                    if(v) {
+                        listaMesas.add(mesa);
+                    }
+                    mesaAdapter.notifyDataSetChanged();
                     if (state) {
                         mesa.getNumero();
                         Button boton = (Button)findViewById(btnMesa[mesa.getNumero()-1]);
@@ -60,11 +80,49 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 }
             }
+
             @Override
-            public void onCancelled(DatabaseError databaseError) {
-                // Getting Post failed, log a message
+            public void onCancelled(@NonNull DatabaseError error) {
+
             }
         });
+
+        ItemTouchHelper.SimpleCallback itemTouchHelperCallback =
+                new ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.RIGHT) {
+                    @Override
+                    public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder viewHolder1) {
+                        return false;
+                    }
+
+                    @Override
+                    public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
+                        Mesas = FirebaseDatabase.getInstance().getReference("Mesas");
+                        System.out.println(viewHolder.getAdapterPosition());
+                        //Mesas.child("Mesa").child(mesaAdapter.items.get(0).getNumero().toString()).removeValue();
+                        mesaAdapter.items.remove(0);
+                        mesaAdapter.notifyDataSetChanged();
+
+                    }
+
+                    @Override
+                    public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+
+                        int dragFlags = 0;
+                        int swipeFlags = 0;
+                        swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
+                        dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
+
+                        if (viewHolder.getAdapterPosition() > 0) {
+                            // disable swipe feature for position 3
+                            return makeMovementFlags(0, 0);
+                        }
+
+                        return makeMovementFlags(dragFlags, swipeFlags);
+                    }
+                };
+
+
+        new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(recyclerView);
 
         }
 
@@ -149,5 +207,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
     }
+
 
 }
